@@ -66,6 +66,7 @@ def _get_saml_client(domain):
         'metadata': {
             'local': [f.name],
         },
+
         'service': {
             'sp': {
                 'endpoints': {
@@ -74,13 +75,21 @@ def _get_saml_client(domain):
                         (acs_url, BINDING_HTTP_POST)
                     ],
                 },
-                'allow_unsolicited': True,
-                'authn_requests_signed': False,
-                'logout_requests_signed': True,
-                'want_assertions_signed': True,
-                'want_response_signed': False,
+                'allow_unsolicited': settings.SAML2_AUTH.get('SP_PROPERTIES', {}).get('allow_unsolicited', 'True'),
+                'authn_requests_signed': settings.SAML2_AUTH.get('SP_PROPERTIES', {}).get('authn_requests_signed', 'False'),
+                'logout_requests_signed': settings.SAML2_AUTH.get('SP_PROPERTIES', {}).get('logout_requests_signed', 'True'),
+                'want_assertions_signed': settings.SAML2_AUTH.get('SP_PROPERTIES', {}).get('want_assertions_signed', 'True'),
+                'want_response_signed': settings.SAML2_AUTH.get('SP_PROPERTIES', {}).get('want_response_signed', 'False'),
             },
         },
+        'cert_file': settings.SAML2_AUTH.get('SERVICE_PROPERTIES', {}).get('cert_file', None),
+        'contact_person': settings.SAML2_AUTH.get('SERVICE_PROPERTIES', {}).get('contact_person', None),
+        'debug': settings.SAML2_AUTH.get('SERVICE_PROPERTIES', {}).get('contact_person', None),
+        'entityid': settings.SAML2_AUTH.get('SERVICE_PROPERTIES', {}).get('entityid', None),
+        'key_file': settings.SAML2_AUTH.get('SERVICE_PROPERTIES', {}).get('key_file', None),
+        'xmlsec_binary': settings.SAML2_AUTH.get('SERVICE_PROPERTIES', {}).get('xmlsec_binary', None),
+        'valid_for': settings.SAML2_AUTH.get('SERVICE_PROPERTIES', {}).get('valid_for', None),
+        'organization': settings.SAML2_AUTH.get('SERVICE_PROPERTIES', {}).get('organization', None),
     }
 
     spConfig = Saml2Config()
@@ -156,6 +165,8 @@ def acs(r):
     if target_user.is_active:
         target_user.backend = 'django.contrib.auth.backends.ModelBackend'
         login(r, target_user)
+        if settings.SAML2_AUTH.get('TRIGGER', {}).get('AFTER_LOGIN', None):
+            import_string(settings.SAML2_AUTH['TRIGGER']['AFTER_LOGIN'])(user_identity)
     else:
         return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied']))
 

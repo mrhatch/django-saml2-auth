@@ -143,6 +143,32 @@ How to use?
             'TRIGGER': {
                 'CREATE_USER': 'path.to.your.new.user.hook.method',
                 'BEFORE_LOGIN': 'path.to.your.login.hook.method',
+                'AFTER_LOGIN': 'path.to.your.login.hook.method',
+            },
+            'SP_PROPERTIES': {
+                'allow_unsolicited': True,
+                'authn_requests_signed': False,
+                'logout_requests_signed': True,
+                'want_assertions_signed': True,
+                'want_response_signed': False,
+            },
+            'SERVICE_PROPERTIES': {
+                'cert_file': 'cert.pem',
+                'contact_person': '"contact_person": [{
+                                    "givenname": "Roland",
+                                    "surname": "Hedberg",
+                                    "phone": "+46 90510",
+                                    "mail": "roland@example.com",
+                                    "type": "technical",
+                                    }]',
+                'debug': 1,
+                'entityid': 'http://www.hostname.com',
+                'key_file': 'key.pem',
+                'organization': '"organization": {
+                                 "display_name":["Example identities"]
+                                }',
+                'xmlsec_binary': '/usr/local/bin/xmlsec1',
+                'valid_for': 24,
             },
         }
 
@@ -171,6 +197,10 @@ record is created. This method should accept ONE parameter of user dict.
 
 **TRIGGER.BEFORE_LOGIN** A method to be called when an existing user logs in.
 This method will be called before the user is logged in and after user
+attributes are returned by the SAML2 identity provider. This method should accept ONE parameter of user dict.
+
+**TRIGGER.AFTER_LOGIN** A method to be called when an existing user logs in.
+This method will be called after the user is logged in and after user
 attributes are returned by the SAML2 identity provider. This method should accept ONE parameter of user dict.
 
 
